@@ -33,7 +33,13 @@ app.use((req, res, next) => {
     next();
 });
 
-// Define the /chat endpoint for your proxy
+// NEW: Define a GET route for /chat for simple browser testing
+app.get('/chat', (req, res) => {
+    res.send('Welcome to the OpenAI Proxy Chat Endpoint! This endpoint expects POST requests for AI interactions.');
+});
+
+
+// Define the /chat endpoint for your proxy (this is your original POST route)
 app.post('/chat', async (req, res) => {
     // Check if the API key is available
     if (!OPENAI_API_KEY) {
@@ -80,7 +86,8 @@ app.post('/chat', async (req, res) => {
         const openaiResult = await openaiResponse.json();
 
         // Extract the AI's response
-        if (openaiResult.choices && openaiResult.choices.length > 0 && openaiResult[0].message && openaiResult[0].message.content) {
+        // Corrected access: openaiResult.choices[0].message.content
+        if (openaiResult.choices && openaiResult.choices.length > 0 && openaiResult.choices[0].message && openaiResult.choices[0].message.content) {
             const aiText = openaiResult.choices[0].message.content;
             // Send the AI's response back to the client
             res.json({ response: aiText });
@@ -98,5 +105,5 @@ app.post('/chat', async (req, res) => {
 // Start the server
 app.listen(PORT, () => {
     console.log(`Node.js proxy server running on port ${PORT}`);
-    console.log(`Access at http://localhost:${PORT}/chat (or your Cloudways app URL)`);
+    console.log(`Access at http://localhost:${PORT}/chat (or your Vercel app URL)`);
 });
